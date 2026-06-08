@@ -1,28 +1,20 @@
 // components/SpeakerButton.js
 // Pronunciation audio controls with full PLAY / PAUSE / STOP state management,
-// built on expo-audio (the modern replacement for the deprecated expo-av).
-//
-// Behaviour:
-//   - Renders nothing when there is no audio (Activity 3 requirement).
-//   - Supports MULTIPLE pronunciations: shows selectable region pills (US/UK…)
-//     when more than one audio URL is available.
-//   - Play  -> starts (or resumes) playback.
-//   - Pause -> pauses at the current position.
-//   - Stop  -> pauses AND rewinds to the start; disabled when already stopped.
-//   - Auto-resets to the start when the clip finishes.
-//   - Any playback failure is caught and surfaced gently (no crash).
+// built on expo-audio. Supports multiple pronunciations (region pills) and is
+// theme-aware. Renders nothing when there is no audio.
 import { Ionicons } from '@expo/vector-icons';
 import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
-import { COLORS } from '../constants/colors';
+import { useTheme } from '../context/ThemeContext';
 
 export default function SpeakerButton({ audios = [], variant = 'light' }) {
-  // Normalize input: accept [{url,label}] and drop anything without a URL.
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   const list = (Array.isArray(audios) ? audios : []).filter((a) => a && a.url);
 
   const [selected, setSelected] = useState(0);
-  // The player is created once on the first source; we switch via replace().
   const player = useAudioPlayer(list[0]?.url || null);
   const status = useAudioPlayerStatus(player);
 
@@ -42,13 +34,12 @@ export default function SpeakerButton({ audios = [], variant = 'light' }) {
     }
   }, [status?.didJustFinish, player]);
 
-  // Activity 3: hide the control entirely when no audio exists.
   if (list.length === 0) return null;
 
   const onPlay = () => {
-    if (isPlaying) return; // already playing
+    if (isPlaying) return;
     try {
-      if (status?.didJustFinish) player.seekTo(0); // restart if at the end
+      if (status?.didJustFinish) player.seekTo(0);
       player.play();
     } catch (e) {
       Alert.alert('Playback error', 'Unable to play the pronunciation audio.');
@@ -56,7 +47,7 @@ export default function SpeakerButton({ audios = [], variant = 'light' }) {
   };
 
   const onPause = () => {
-    if (!isPlaying) return; // nothing to pause
+    if (!isPlaying) return;
     try {
       player.pause();
     } catch {
@@ -74,7 +65,6 @@ export default function SpeakerButton({ audios = [], variant = 'light' }) {
     }
   };
 
-  // Switch to a different pronunciation (region) and start it.
   const onSelect = (i) => {
     if (i === selected) return;
     try {
@@ -88,13 +78,15 @@ export default function SpeakerButton({ audios = [], variant = 'light' }) {
   };
 
   const onGradient = variant === 'light';
-  const tint = onGradient ? COLORS.white : COLORS.primary;
-  const softText = onGradient ? COLORS.textOnGradientSoft : COLORS.textMuted;
+  const tint = onGradient ? colors.white : colors.primary;
+  const softText = onGradient ? colors.textOnGradientSoft : colors.textMuted;
   const statusLabel = isPlaying
     ? 'Playing…'
     : position > 0.01
     ? 'Paused'
     : 'Tap to listen';
+
+  const activeTextColor = onGradient ? colors.primary : colors.white;
 
   return (
     <View style={styles.container}>
@@ -115,12 +107,12 @@ export default function SpeakerButton({ audios = [], variant = 'light' }) {
               <Ionicons
                 name="headset-outline"
                 size={12}
-                color={i === selected ? (onGradient ? COLORS.primary : COLORS.white) : tint}
+                color={i === selected ? activeTextColor : tint}
               />
               <Text
                 style={[
                   styles.pillText,
-                  { color: i === selected ? (onGradient ? COLORS.primary : COLORS.white) : tint },
+                  { color: i === selected ? activeTextColor : tint },
                 ]}
               >
                 {a.label}
@@ -131,7 +123,7 @@ export default function SpeakerButton({ audios = [], variant = 'light' }) {
       ) : null}
 
       <View style={styles.row}>
-        {/* Play (disabled while already playing) */}
+        {/* Play */}
         <Pressable
           onPress={onPlay}
           disabled={isPlaying}
@@ -147,7 +139,7 @@ export default function SpeakerButton({ audios = [], variant = 'light' }) {
           <Ionicons name="play" size={20} color={tint} />
         </Pressable>
 
-        {/* Pause (middle — disabled when not playing) */}
+        {/* Pause (middle) */}
         <Pressable
           onPress={onPause}
           disabled={!isPlaying}
@@ -163,7 +155,7 @@ export default function SpeakerButton({ audios = [], variant = 'light' }) {
           <Ionicons name="pause" size={16} color={tint} />
         </Pressable>
 
-        {/* Stop (disabled when nothing is playing/paused) */}
+        {/* Stop */}
         <Pressable
           onPress={onStop}
           disabled={!canStop}
@@ -179,7 +171,6 @@ export default function SpeakerButton({ audios = [], variant = 'light' }) {
           <Ionicons name="stop" size={16} color={tint} />
         </Pressable>
 
-        {/* Speaker icon + live status label, next to the controls */}
         <View style={styles.labelWrap}>
           <Ionicons name="volume-high" size={16} color={softText} />
           <Text style={[styles.label, { color: softText }]}>{statusLabel}</Text>
@@ -189,99 +180,87 @@ export default function SpeakerButton({ audios = [], variant = 'light' }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    marginTop: 16,
-  },
-  pills: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 12,
-  },
-  pill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 999,
-    borderWidth: 1,
-  },
-  pillLight: {
-    backgroundColor: 'rgba(255,255,255,0.12)',
-    borderColor: 'rgba(255,255,255,0.4)',
-  },
-  pillDark: {
-    backgroundColor: COLORS.surfaceAlt,
-    borderColor: COLORS.border,
-  },
-  pillActiveLight: {
-    backgroundColor: COLORS.white,
-    borderColor: COLORS.white,
-  },
-  pillActiveDark: {
-    backgroundColor: COLORS.primary,
-    borderColor: COLORS.primary,
-  },
-  pillText: {
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  primaryBtn: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  primaryBtnLight: {
-    backgroundColor: 'rgba(255,255,255,0.22)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.5)',
-  },
-  primaryBtnDark: {
-    backgroundColor: COLORS.primaryTint,
-    borderWidth: 1,
-    borderColor: COLORS.primary,
-  },
-  stopBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  stopBtnLight: {
-    backgroundColor: 'rgba(255,255,255,0.12)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.4)',
-  },
-  stopBtnDark: {
-    backgroundColor: COLORS.surfaceAlt,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-  labelWrap: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    marginLeft: 2,
-  },
-  label: {
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  disabled: {
-    opacity: 0.4,
-  },
-  pressed: {
-    opacity: 0.7,
-    transform: [{ scale: 0.96 }],
-  },
-});
+const createStyles = (c) =>
+  StyleSheet.create({
+    container: { marginTop: 16 },
+    pills: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 8,
+      marginBottom: 12,
+    },
+    pill: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 5,
+      paddingHorizontal: 10,
+      paddingVertical: 5,
+      borderRadius: 999,
+      borderWidth: 1,
+    },
+    pillLight: {
+      backgroundColor: 'rgba(255,255,255,0.12)',
+      borderColor: 'rgba(255,255,255,0.4)',
+    },
+    pillDark: {
+      backgroundColor: c.surfaceAlt,
+      borderColor: c.border,
+    },
+    pillActiveLight: {
+      backgroundColor: c.white,
+      borderColor: c.white,
+    },
+    pillActiveDark: {
+      backgroundColor: c.primary,
+      borderColor: c.primary,
+    },
+    pillText: { fontSize: 12, fontWeight: '700' },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+    },
+    primaryBtn: {
+      width: 46,
+      height: 46,
+      borderRadius: 23,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    primaryBtnLight: {
+      backgroundColor: 'rgba(255,255,255,0.22)',
+      borderWidth: 1,
+      borderColor: 'rgba(255,255,255,0.5)',
+    },
+    primaryBtnDark: {
+      backgroundColor: c.primaryTint,
+      borderWidth: 1,
+      borderColor: c.primary,
+    },
+    stopBtn: {
+      width: 38,
+      height: 38,
+      borderRadius: 19,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    stopBtnLight: {
+      backgroundColor: 'rgba(255,255,255,0.12)',
+      borderWidth: 1,
+      borderColor: 'rgba(255,255,255,0.4)',
+    },
+    stopBtnDark: {
+      backgroundColor: c.surfaceAlt,
+      borderWidth: 1,
+      borderColor: c.border,
+    },
+    labelWrap: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 5,
+      marginLeft: 2,
+    },
+    label: { fontSize: 13, fontWeight: '600' },
+    disabled: { opacity: 0.4 },
+    pressed: { opacity: 0.7, transform: [{ scale: 0.96 }] },
+  });

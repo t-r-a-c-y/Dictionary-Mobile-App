@@ -1,14 +1,14 @@
 // components/MeaningCard.js
-// Renders one part-of-speech group with all its numbered definitions, example
-// sentences, and synonyms/antonyms chips. Defensive against missing data and
-// animates in for a polished feel.
+// One part-of-speech group: numbered definitions, examples, and synonyms/
+// antonyms chips. Theme-aware, animated, and defensive against missing data.
 import { Ionicons } from '@expo/vector-icons';
+import { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { COLORS, SHADOW } from '../constants/colors';
+import { useTheme } from '../context/ThemeContext';
 
-// A small labelled chip group (used for synonyms & antonyms).
-function ChipRow({ icon, label, items, color, bg }) {
+// A labelled, self-contained chip group (synonyms / antonyms).
+function ChipRow({ icon, label, items, color, bg, styles }) {
   if (!items || items.length === 0) return null;
   return (
     <View style={styles.chipSection}>
@@ -18,9 +18,14 @@ function ChipRow({ icon, label, items, color, bg }) {
       </View>
       <View style={styles.chips}>
         {items.map((w) => (
-          <Text key={w} style={[styles.chip, { backgroundColor: bg, color }]}>
-            {w}
-          </Text>
+          <View key={w} style={[styles.chip, { backgroundColor: bg }]}>
+            <Text
+              style={[styles.chipText, { color }]}
+              numberOfLines={1}
+            >
+              {w}
+            </Text>
+          </View>
         ))}
       </View>
     </View>
@@ -28,16 +33,18 @@ function ChipRow({ icon, label, items, color, bg }) {
 }
 
 export default function MeaningCard({ meaning, index = 0 }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   const { partOfSpeech, definitions, synonyms, antonyms } = meaning || {};
   const list = Array.isArray(definitions) ? definitions : [];
 
-  // Safe render: skip cards that somehow arrived without definitions.
   if (list.length === 0) return null;
 
   return (
     <Animated.View
       entering={FadeInDown.duration(380).delay(index * 70)}
-      style={[styles.card, SHADOW]}
+      style={[styles.card, colors.shadow]}
     >
       <View style={styles.header}>
         <View style={styles.posTag}>
@@ -62,7 +69,7 @@ export default function MeaningCard({ meaning, index = 0 }) {
               <Ionicons
                 name="chatbubble-ellipses-outline"
                 size={14}
-                color={COLORS.accent}
+                color={colors.accent}
               />
               <Text style={styles.example}>{def.example}</Text>
             </View>
@@ -70,134 +77,144 @@ export default function MeaningCard({ meaning, index = 0 }) {
         </View>
       ))}
 
-      {/* Synonyms / antonyms (only when present) */}
       <ChipRow
         icon="swap-horizontal"
         label="Synonyms"
         items={synonyms}
-        color={COLORS.success}
-        bg="rgba(22,163,74,0.10)"
+        color={colors.success}
+        bg={colors.successTint}
+        styles={styles}
       />
       <ChipRow
         icon="git-compare-outline"
         label="Antonyms"
         items={antonyms}
-        color={COLORS.error}
-        bg="rgba(220,38,38,0.08)"
+        color={colors.error}
+        bg={colors.errorTint}
+        styles={styles}
       />
     </Animated.View>
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: COLORS.surface,
-    borderRadius: 18,
-    padding: 18,
-    marginBottom: 16,
-    borderLeftWidth: 4,
-    borderLeftColor: COLORS.accent,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 14,
-  },
-  posTag: {
-    backgroundColor: COLORS.accentTint,
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-    borderRadius: 999,
-  },
-  posText: {
-    color: COLORS.accent,
-    fontWeight: '800',
-    fontSize: 13,
-    textTransform: 'capitalize',
-  },
-  count: {
-    color: COLORS.textMuted,
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  defBlock: {
-    marginBottom: 14,
-  },
-  defRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 10,
-  },
-  numberBadge: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: COLORS.surfaceAlt,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 1,
-  },
-  numberText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: COLORS.primary,
-  },
-  definition: {
-    flex: 1,
-    fontSize: 15.5,
-    color: COLORS.text,
-    lineHeight: 23,
-  },
-  exampleBox: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 8,
-    backgroundColor: COLORS.surfaceAlt,
-    borderRadius: 12,
-    padding: 12,
-    marginTop: 10,
-    marginLeft: 32,
-  },
-  example: {
-    flex: 1,
-    fontSize: 14,
-    color: COLORS.textMuted,
-    fontStyle: 'italic',
-    lineHeight: 20,
-  },
-  chipSection: {
-    marginTop: 6,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.border,
-  },
-  chipHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginBottom: 8,
-  },
-  chipLabel: {
-    fontSize: 12,
-    fontWeight: '800',
-    letterSpacing: 0.5,
-    textTransform: 'uppercase',
-  },
-  chips: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 7,
-  },
-  chip: {
-    fontSize: 13,
-    fontWeight: '600',
-    paddingHorizontal: 11,
-    paddingVertical: 5,
-    borderRadius: 999,
-    overflow: 'hidden',
-    textTransform: 'lowercase',
-  },
-});
+const createStyles = (c) =>
+  StyleSheet.create({
+    card: {
+      backgroundColor: c.surface,
+      borderRadius: 18,
+      padding: 18,
+      marginBottom: 16,
+      borderLeftWidth: 4,
+      borderLeftColor: c.accent,
+      overflow: 'hidden', // keep all content inside the rounded card
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: 14,
+    },
+    posTag: {
+      backgroundColor: c.accentTint,
+      paddingHorizontal: 12,
+      paddingVertical: 5,
+      borderRadius: 999,
+    },
+    posText: {
+      color: c.accent,
+      fontWeight: '800',
+      fontSize: 13,
+      textTransform: 'capitalize',
+    },
+    count: {
+      color: c.textMuted,
+      fontSize: 12,
+      fontWeight: '600',
+    },
+    defBlock: {
+      marginBottom: 14,
+    },
+    defRow: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: 10,
+    },
+    numberBadge: {
+      width: 22,
+      height: 22,
+      borderRadius: 11,
+      backgroundColor: c.surfaceAlt,
+      borderWidth: 1,
+      borderColor: c.border,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: 1,
+    },
+    numberText: {
+      fontSize: 12,
+      fontWeight: '700',
+      color: c.primary,
+    },
+    definition: {
+      flex: 1,
+      fontSize: 15.5,
+      color: c.text,
+      lineHeight: 23,
+    },
+    exampleBox: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: 8,
+      backgroundColor: c.surfaceAlt,
+      borderRadius: 12,
+      padding: 12,
+      marginTop: 10,
+      marginLeft: 32,
+    },
+    example: {
+      flex: 1,
+      fontSize: 14,
+      color: c.textMuted,
+      fontStyle: 'italic',
+      lineHeight: 20,
+    },
+    chipSection: {
+      marginTop: 6,
+      paddingTop: 12,
+      borderTopWidth: 1,
+      borderTopColor: c.border,
+    },
+    chipHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      marginBottom: 10,
+    },
+    chipLabel: {
+      fontSize: 12,
+      fontWeight: '800',
+      letterSpacing: 0.5,
+      textTransform: 'uppercase',
+    },
+    // Full-width wrapping row that keeps every chip inside the card.
+    chips: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      alignItems: 'flex-start',
+      width: '100%',
+    },
+    chip: {
+      maxWidth: '100%',
+      flexShrink: 1,
+      borderRadius: 999,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      marginRight: 8,
+      marginBottom: 8,
+    },
+    chipText: {
+      fontSize: 13,
+      fontWeight: '600',
+      textTransform: 'lowercase',
+    },
+  });

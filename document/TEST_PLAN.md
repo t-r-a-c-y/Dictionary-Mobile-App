@@ -160,6 +160,14 @@ npx expo export --platform ios --output-dir dist-check
 | NF-5 | Theme / readability | Visual review | Consistent **blue** theme, legible contrast | ☐ |
 | NF-6 | Rapid input | Search several words quickly | No stuck spinners or stale results | ☐ |
 | NF-7 | Long word handling | Search a very long word | Header shrinks to fit (`adjustsFontSizeToFit`) | ☐ |
+| NF-8 | Dark mode toggle (header) | Tap the moon/sun icon in the header | Whole app switches light ⇄ dark instantly | ☐ |
+| NF-9 | Dark mode toggle (drawer) | Open drawer → toggle "Dark mode" switch | Theme switches; drawer + screens recolor | ☐ |
+| NF-10 | System theme default | Set device to dark, fresh-launch app | App starts in dark mode | ☐ |
+| NF-11 | Synonyms/antonyms layout | Search `happy` / `good`, view chips | Chips wrap and stay **inside** the card (no overflow) | ☐ |
+| NF-12 | Clear input on re-search | Open a word → "Search another word" | Search field is **empty** (previous word cleared) | ☐ |
+| NF-13 | Clear-all confirm (drawer) | Drawer → "Clear all" | Styled confirm dialog appears; Cancel keeps, Confirm wipes | ☐ |
+| NF-14 | Clear-all confirm (dashboard) | Search screen → "Clear all" on Recent | Same styled confirm dialog appears before clearing | ☐ |
+| NF-15 | Delete single history item | Drawer → tap ✕ on a word | Only that word is removed (animated out) | ☐ |
 
 ---
 

@@ -1,32 +1,36 @@
 // components/Loader.js
-// A centered spinner card with an optional message, shown while a request is in
-// flight. Card styling keeps it visually consistent with the rest of the app.
+// A centered spinner card with an optional message; theme-aware.
+import { useMemo } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
-import { COLORS, SHADOW } from '../constants/colors';
+import { useTheme } from '../context/ThemeContext';
 
 export default function Loader({ message }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   return (
-    <View style={[styles.container, SHADOW]}>
-      <ActivityIndicator size="large" color={COLORS.primary} />
+    <View style={[styles.container, colors.shadow]}>
+      <ActivityIndicator size="large" color={colors.primary} />
       {message ? <Text style={styles.text}>{message}</Text> : null}
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: COLORS.surface,
-    borderRadius: 18,
-    paddingVertical: 32,
-    paddingHorizontal: 20,
-    marginTop: 24,
-  },
-  text: {
-    marginTop: 14,
-    fontSize: 15,
-    color: COLORS.textMuted,
-    fontWeight: '500',
-  },
-});
+const createStyles = (c) =>
+  StyleSheet.create({
+    container: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: c.surface,
+      borderRadius: 18,
+      paddingVertical: 32,
+      paddingHorizontal: 20,
+      marginTop: 24,
+    },
+    text: {
+      marginTop: 14,
+      fontSize: 15,
+      color: c.textMuted,
+      fontWeight: '500',
+    },
+  });
