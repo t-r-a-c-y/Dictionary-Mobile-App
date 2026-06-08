@@ -37,7 +37,7 @@ export default function RootLayout() {
               headerShadowVisible: false,
               drawerActiveTintColor: COLORS.primary,
               drawerInactiveTintColor: COLORS.text,
-              drawerActiveBackgroundColor: 'rgba(99,102,241,0.10)',
+              drawerActiveBackgroundColor: COLORS.primaryTint,
               drawerItemStyle: { borderRadius: 12 },
               sceneStyle: { backgroundColor: COLORS.background },
             }}

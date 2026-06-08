@@ -19,9 +19,9 @@ drawer.
 | **Errors** | "Word not found" (404), network errors, loaders always hidden after errors, malformed-response-safe, retry support |
 | **UI/UX** | Gradient hero/header cards, soft-shadow cards, POS badges, numbered definitions, recent-search chips, empty/loading/error states |
 
-> 📄 **Full design docs live in [`document/`](document/):**
-> [ARCHITECTURE.md](document/ARCHITECTURE.md) · [DATA_FLOW.md](document/DATA_FLOW.md) · [REQUIREMENTS.md](document/REQUIREMENTS.md)
-> (architecture diagram, data-flow diagram, audio state machine, validation strategy).
+> 📄 **Full design & test docs live in [`document/`](document/):**
+> [ARCHITECTURE.md](document/ARCHITECTURE.md) · [DATA_FLOW.md](document/DATA_FLOW.md) · [REQUIREMENTS.md](document/REQUIREMENTS.md) · [TEST_PLAN.md](document/TEST_PLAN.md)
+> (architecture diagram, data-flow diagram, audio state machine, validation strategy, full test cases for Activities 1–5).
 
 ---
 

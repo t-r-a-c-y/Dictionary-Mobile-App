@@ -73,6 +73,10 @@ GET https://api.dictionaryapi.dev/api/v2/entries/en/{word}
     **disabled** when nothing is playing.
   - Auto-rewind when the clip finishes; live label shows *Playing… / Paused /
     Tap to listen*.
+- ✅ **Multiple pronunciations handled**: `normalize()` collects every distinct
+  audio URL into `audios[]` (deduped, with region labels like US/UK). When more
+  than one exists, the header shows **selectable region pills**; tapping one
+  switches the source via `player.replace()` and plays it.
 - ✅ Plays even on iOS silent mode (`setAudioModeAsync({ playsInSilentMode: true })`
   in `_layout.js`).
 - ✅ Playback errors are caught and shown via `Alert` — never crash.

@@ -23,13 +23,23 @@ export class ApiError extends Error {
  * Flatten the API's array-of-entries into one predictable object.
  * Defensive throughout: any field can be missing or malformed without crashing.
  *
- * @returns {{ word: string, phonetic: string, audioUrl: string|null, meanings: Array }}
+ * @returns {{ word, phonetic, audioUrl, audios, meanings }}
+ *   audios = array of { url, label } for every available pronunciation.
  */
+
+// Derive a friendly region label (US/UK/AU…) from an audio URL when possible.
+function audioLabel(url, fallbackIndex) {
+  const m = url.match(/-(us|uk|au|ca|in|gb)\.mp3(\?|$)/i);
+  if (m) return m[1].toUpperCase();
+  return `Audio ${fallbackIndex + 1}`;
+}
+
 function normalize(rawEntries, fallbackWord) {
   const entries = Array.isArray(rawEntries) ? rawEntries : [];
 
   let phonetic = '';
-  let audioUrl = null;
+  const audios = [];        // all distinct pronunciations
+  const seenAudio = new Set();
   const meanings = [];
 
   for (const entry of entries) {
@@ -45,7 +55,16 @@ function normalize(rawEntries, fallbackWord) {
       for (const p of entry.phonetics) {
         if (!p || typeof p !== 'object') continue;
         if (!phonetic && p.text) phonetic = p.text;
-        if (!audioUrl && p.audio) audioUrl = p.audio;
+
+        // Collect every non-empty, distinct audio URL (handle multiples).
+        if (typeof p.audio === 'string' && p.audio.trim()) {
+          let url = p.audio.trim();
+          if (url.startsWith('//')) url = `https:${url}`; // fix protocol-relative
+          if (!seenAudio.has(url)) {
+            seenAudio.add(url);
+            audios.push({ url, label: audioLabel(url, audios.length) });
+          }
+        }
       }
     }
 
@@ -79,13 +98,9 @@ function normalize(rawEntries, fallbackWord) {
     );
   }
 
-  // Some audio URLs are protocol-relative ("//ssl.gstatic.com/..."). Fix them.
-  if (audioUrl && audioUrl.startsWith('//')) {
-    audioUrl = `https:${audioUrl}`;
-  }
-
   const word = entries[0]?.word || fallbackWord;
-  return { word, phonetic, audioUrl, meanings };
+  // audioUrl kept for convenience (first available); audios holds them all.
+  return { word, phonetic, audioUrl: audios[0]?.url ?? null, audios, meanings };
 }
 
 /**

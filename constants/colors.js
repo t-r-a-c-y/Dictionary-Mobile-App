@@ -1,26 +1,31 @@
 // Centralized color palette so styling stays consistent and easy to theme.
+// Theme: clean, professional BLUE.
 export const COLORS = {
   // Brand / gradients
-  primary: '#4F46E5',       // indigo (buttons, accents)
-  primaryDark: '#4338CA',
-  gradientStart: '#6366F1', // indigo
-  gradientMid: '#7C3AED',   // violet
-  gradientEnd: '#9333EA',   // purple
-  accent: '#8B5CF6',        // violet accent (part-of-speech tags)
+  primary: '#2563EB',       // blue-600 (buttons, accents)
+  primaryDark: '#1D4ED8',   // blue-700 (pressed states)
+  gradientStart: '#3B82F6', // blue-500
+  gradientMid: '#2563EB',   // blue-600
+  gradientEnd: '#1E40AF',   // blue-800
+  accent: '#0EA5E9',        // sky-500 (part-of-speech tags / secondary accent)
+
+  // Translucent brand tints (used for soft badge/icon backgrounds)
+  primaryTint: 'rgba(37,99,235,0.12)',
+  accentTint: 'rgba(14,165,233,0.12)',
 
   // Surfaces
-  background: '#F4F5FB',     // app background (soft lavender-grey)
+  background: '#EEF3FB',     // app background (soft blue-grey)
   surface: '#FFFFFF',        // cards
-  surfaceAlt: '#F8FAFF',     // subtle alternate surface
+  surfaceAlt: '#F2F7FF',     // subtle alternate surface (blue-tinted)
 
   // Text
-  text: '#111827',           // primary text
-  textMuted: '#6B7280',      // secondary text
+  text: '#0F1B2D',           // primary text (deep navy)
+  textMuted: '#5B6B82',      // secondary text (blue-grey)
   textOnGradient: '#FFFFFF',
   textOnGradientSoft: 'rgba(255,255,255,0.85)',
 
   // Lines / states
-  border: '#E5E7EB',
+  border: '#DCE5F2',         // blue-tinted border
   error: '#DC2626',
   errorBg: '#FEF2F2',
   success: '#16A34A',
@@ -29,9 +34,9 @@ export const COLORS = {
 
 // Reusable soft shadow for cards (works on iOS + Android).
 export const SHADOW = {
-  shadowColor: '#1E1B4B',
+  shadowColor: '#0B2E66',
   shadowOffset: { width: 0, height: 6 },
-  shadowOpacity: 0.08,
+  shadowOpacity: 0.1,
   shadowRadius: 14,
   elevation: 4,
 };

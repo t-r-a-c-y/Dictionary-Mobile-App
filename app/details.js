@@ -32,7 +32,8 @@ export default function DetailsScreen() {
     );
   }
 
-  const { word, phonetic, audioUrl, meanings } = currentEntry;
+  const { word, phonetic, audios = [], meanings } = currentEntry;
+  const hasAudio = Array.isArray(audios) && audios.length > 0;
 
   return (
     <ScrollView
@@ -62,9 +63,9 @@ export default function DetailsScreen() {
           <Text style={styles.noPhonetic}>Phonetic spelling unavailable</Text>
         )}
 
-        {/* Audio controls — rendered ONLY when an audio URL exists (Activity 3) */}
-        {audioUrl ? (
-          <SpeakerButton audioUrl={audioUrl} variant="light" />
+        {/* Audio controls — rendered ONLY when audio exists (Activity 3) */}
+        {hasAudio ? (
+          <SpeakerButton audios={audios} variant="light" />
         ) : (
           <View style={styles.noAudio}>
             <Ionicons name="volume-mute-outline" size={15} color={COLORS.textOnGradientSoft} />

@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   posTag: {
-    backgroundColor: 'rgba(139,92,246,0.12)',
+    backgroundColor: COLORS.accentTint,
     paddingHorizontal: 12,
     paddingVertical: 5,
     borderRadius: 999,
