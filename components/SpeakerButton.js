@@ -45,16 +45,22 @@ export default function SpeakerButton({ audios = [], variant = 'light' }) {
   // Activity 3: hide the control entirely when no audio exists.
   if (list.length === 0) return null;
 
-  const onPlayPause = () => {
+  const onPlay = () => {
+    if (isPlaying) return; // already playing
     try {
-      if (isPlaying) {
-        player.pause();
-      } else {
-        if (status?.didJustFinish) player.seekTo(0);
-        player.play();
-      }
+      if (status?.didJustFinish) player.seekTo(0); // restart if at the end
+      player.play();
     } catch (e) {
       Alert.alert('Playback error', 'Unable to play the pronunciation audio.');
+    }
+  };
+
+  const onPause = () => {
+    if (!isPlaying) return; // nothing to pause
+    try {
+      player.pause();
+    } catch {
+      /* best-effort */
     }
   };
 
@@ -125,21 +131,39 @@ export default function SpeakerButton({ audios = [], variant = 'light' }) {
       ) : null}
 
       <View style={styles.row}>
-        {/* Primary Play / Pause toggle */}
+        {/* Play (disabled while already playing) */}
         <Pressable
-          onPress={onPlayPause}
+          onPress={onPlay}
+          disabled={isPlaying}
           accessibilityRole="button"
-          accessibilityLabel={isPlaying ? 'Pause pronunciation' : 'Play pronunciation'}
+          accessibilityLabel="Play pronunciation"
           style={({ pressed }) => [
             styles.primaryBtn,
             onGradient ? styles.primaryBtnLight : styles.primaryBtnDark,
-            pressed && styles.pressed,
+            isPlaying && styles.disabled,
+            pressed && !isPlaying && styles.pressed,
           ]}
         >
-          <Ionicons name={isPlaying ? 'pause' : 'play'} size={20} color={tint} />
+          <Ionicons name="play" size={20} color={tint} />
         </Pressable>
 
-        {/* Stop button (disabled when nothing is playing) */}
+        {/* Pause (middle — disabled when not playing) */}
+        <Pressable
+          onPress={onPause}
+          disabled={!isPlaying}
+          accessibilityRole="button"
+          accessibilityLabel="Pause pronunciation"
+          style={({ pressed }) => [
+            styles.stopBtn,
+            onGradient ? styles.stopBtnLight : styles.stopBtnDark,
+            !isPlaying && styles.disabled,
+            pressed && isPlaying && styles.pressed,
+          ]}
+        >
+          <Ionicons name="pause" size={16} color={tint} />
+        </Pressable>
+
+        {/* Stop (disabled when nothing is playing/paused) */}
         <Pressable
           onPress={onStop}
           disabled={!canStop}

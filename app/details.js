@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import MeaningCard from '../components/MeaningCard';
 import SpeakerButton from '../components/SpeakerButton';
 import { COLORS, SHADOW } from '../constants/colors';
@@ -42,12 +43,13 @@ export default function DetailsScreen() {
       showsVerticalScrollIndicator={false}
     >
       {/* Gradient header card: word prominently at the top (Activity 2) */}
-      <LinearGradient
-        colors={[COLORS.gradientStart, COLORS.gradientMid, COLORS.gradientEnd]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={[styles.headerCard, SHADOW]}
-      >
+      <Animated.View entering={FadeInDown.duration(400)}>
+        <LinearGradient
+          colors={[COLORS.gradientStart, COLORS.gradientMid, COLORS.gradientEnd]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={[styles.headerCard, SHADOW]}
+        >
         <Text style={styles.label}>WORD</Text>
         <Text style={styles.word} numberOfLines={2} adjustsFontSizeToFit>
           {word}
@@ -72,7 +74,8 @@ export default function DetailsScreen() {
             <Text style={styles.noAudioText}>No pronunciation audio available</Text>
           </View>
         )}
-      </LinearGradient>
+        </LinearGradient>
+      </Animated.View>
 
       {/* Section heading */}
       <Text style={styles.sectionHeading}>

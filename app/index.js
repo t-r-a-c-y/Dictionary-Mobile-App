@@ -12,6 +12,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import ErrorView from '../components/ErrorView';
 import Loader from '../components/Loader';
 import SearchBar from '../components/SearchBar';
@@ -22,7 +23,8 @@ export default function SearchScreen() {
   const [word, setWord] = useState('');
   const [validationError, setValidationError] = useState('');
   const router = useRouter();
-  const { search, loading, error, clearError, history } = useHistory();
+  const { search, loading, error, clearError, history, clearHistory } =
+    useHistory();
 
   const onSearch = async () => {
     Keyboard.dismiss();
@@ -75,7 +77,10 @@ export default function SearchScreen() {
 
       {/* Floating search card overlapping the hero */}
       <View style={styles.body}>
-        <View style={[styles.searchCard, SHADOW]}>
+        <Animated.View
+          entering={FadeInDown.duration(450)}
+          style={[styles.searchCard, SHADOW]}
+        >
           <Text style={styles.cardLabel}>Look up a word</Text>
           <SearchBar
             value={word}
@@ -90,7 +95,7 @@ export default function SearchScreen() {
               <Text style={styles.validation}>{validationError}</Text>
             </View>
           ) : null}
-        </View>
+        </Animated.View>
 
         {/* Loading indicator while fetching */}
         {loading && <Loader message={`Searching "${word.trim()}"…`} />}
@@ -102,22 +107,45 @@ export default function SearchScreen() {
 
         {/* Idle helper content */}
         {!loading && !error ? (
-          <View style={styles.tips}>
+          <Animated.View entering={FadeIn.duration(500)} style={styles.tips}>
             {history.length === 0 ? (
               <>
                 <Ionicons
                   name="search-circle-outline"
-                  size={64}
+                  size={72}
                   color={COLORS.border}
                 />
                 <Text style={styles.tipTitle}>Start exploring</Text>
                 <Text style={styles.tipText}>
                   Try a word like “serendipity”, “run”, or “hello”.
                 </Text>
+                <View style={styles.suggestRow}>
+                  {['hello', 'serendipity', 'run'].map((w) => (
+                    <Text
+                      key={w}
+                      onPress={async () => {
+                        const ok = await search(w);
+                        if (ok) router.push('/details');
+                      }}
+                      style={styles.suggestChip}
+                    >
+                      {w}
+                    </Text>
+                  ))}
+                </View>
               </>
             ) : (
-              <>
-                <Text style={styles.recentTitle}>Recent searches</Text>
+              <View style={styles.recentWrap}>
+                <View style={styles.recentHeader}>
+                  <Text style={styles.recentTitle}>Recent searches</Text>
+                  <Text
+                    onPress={clearHistory}
+                    style={styles.clearLink}
+                    accessibilityRole="button"
+                  >
+                    Clear all
+                  </Text>
+                </View>
                 <View style={styles.chips}>
                   {history.slice(0, 8).map((w) => (
                     <Text
@@ -135,9 +163,9 @@ export default function SearchScreen() {
                 <Text style={styles.tipHint}>
                   Open the drawer (top-left) for your full history.
                 </Text>
-              </>
+              </View>
             )}
-          </View>
+          </Animated.View>
         ) : null}
       </View>
     </ScrollView>
@@ -224,14 +252,44 @@ const styles = StyleSheet.create({
     marginTop: 6,
     lineHeight: 20,
   },
+  suggestRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 10,
+    marginTop: 18,
+  },
+  suggestChip: {
+    backgroundColor: COLORS.primaryTint,
+    color: COLORS.primary,
+    fontWeight: '700',
+    fontSize: 14,
+    textTransform: 'capitalize',
+    paddingHorizontal: 16,
+    paddingVertical: 9,
+    borderRadius: 999,
+    overflow: 'hidden',
+  },
+  recentWrap: {
+    width: '100%',
+  },
+  recentHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
   recentTitle: {
-    alignSelf: 'flex-start',
     fontSize: 13,
     fontWeight: '700',
     color: COLORS.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.6,
-    marginBottom: 12,
+  },
+  clearLink: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: COLORS.error,
   },
   chips: {
     flexDirection: 'row',

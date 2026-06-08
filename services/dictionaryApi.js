@@ -81,9 +81,21 @@ function normalize(rawEntries, fallbackWord) {
           }));
 
         if (definitions.length > 0) {
+          // Collect meaning-level synonyms/antonyms (deduped, capped for UI).
+          const dedupeStrings = (arr) =>
+            Array.from(
+              new Set(
+                (Array.isArray(arr) ? arr : []).filter(
+                  (s) => typeof s === 'string' && s.trim()
+                )
+              )
+            ).slice(0, 10);
+
           meanings.push({
             partOfSpeech: m.partOfSpeech || 'unknown',
             definitions,
+            synonyms: dedupeStrings(m.synonyms),
+            antonyms: dedupeStrings(m.antonyms),
           });
         }
       }

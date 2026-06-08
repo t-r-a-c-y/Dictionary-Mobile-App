@@ -29,6 +29,15 @@ export function HistoryProvider({ children }) {
     setHistory((prev) => (prev.includes(w) ? prev : [w, ...prev]));
   }, []);
 
+  // Remove a single word from history.
+  const removeFromHistory = useCallback((word) => {
+    const w = (word || '').toLowerCase().trim();
+    setHistory((prev) => prev.filter((item) => item !== w));
+  }, []);
+
+  // Clear the entire search history.
+  const clearHistory = useCallback(() => setHistory([]), []);
+
   // The core flow. Returns true on success so callers can navigate.
   const search = useCallback(
     async (rawWord) => {
@@ -68,9 +77,21 @@ export function HistoryProvider({ children }) {
       error,
       search,
       addToHistory,
+      removeFromHistory,
+      clearHistory,
       clearError,
     }),
-    [history, currentEntry, loading, error, search, addToHistory, clearError]
+    [
+      history,
+      currentEntry,
+      loading,
+      error,
+      search,
+      addToHistory,
+      removeFromHistory,
+      clearHistory,
+      clearError,
+    ]
   );
 
   return (
