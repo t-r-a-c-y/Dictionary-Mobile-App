@@ -13,14 +13,14 @@
     ],
     "splash": {
       "resizeMode": "contain",
-      "backgroundColor": "#3B82F6"
+      "backgroundColor": "#166534"
     },
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#3B82F6"
+        "backgroundColor": "#166534"
       },
       "edgeToEdgeEnabled": true
     },

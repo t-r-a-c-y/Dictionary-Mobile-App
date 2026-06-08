@@ -1,5 +1,5 @@
 // constants/colors.js
-// Two full palettes (light + dark) for the blue theme. Components read the
+// Two full palettes (light + dark) for the DARK GREEN theme. Components read the
 // active palette from ThemeContext via useTheme().colors — never import these
 // directly for styling (except as a static fallback).
 
@@ -7,41 +7,41 @@ export const lightColors = {
   mode: 'light',
   isDark: false,
 
-  // Brand / gradients
-  primary: '#2563EB',
-  primaryDark: '#1D4ED8',
-  gradientStart: '#3B82F6',
-  gradientMid: '#2563EB',
-  gradientEnd: '#1E40AF',
-  accent: '#0EA5E9',
+  // Brand / gradients (dark green)
+  primary: '#15803D',       // green-700
+  primaryDark: '#166534',   // green-800 (pressed)
+  gradientStart: '#166534', // green-800
+  gradientMid: '#15803D',   // green-700
+  gradientEnd: '#14532D',   // green-900
+  accent: '#0D9488',        // teal-600 (secondary accent / POS tags)
 
   // Translucent tints
-  primaryTint: 'rgba(37,99,235,0.12)',
-  accentTint: 'rgba(14,165,233,0.12)',
-  successTint: 'rgba(22,163,74,0.10)',
+  primaryTint: 'rgba(21,128,61,0.12)',
+  accentTint: 'rgba(13,148,136,0.12)',
+  successTint: 'rgba(22,163,74,0.12)',
   errorTint: 'rgba(220,38,38,0.08)',
 
   // Surfaces
-  background: '#EEF3FB',
+  background: '#EDF4EE',
   surface: '#FFFFFF',
-  surfaceAlt: '#F2F7FF',
+  surfaceAlt: '#F1F7F2',
 
   // Text
-  text: '#0F1B2D',
-  textMuted: '#5B6B82',
+  text: '#0E1F15',
+  textMuted: '#566B5D',
   textOnGradient: '#FFFFFF',
   textOnGradientSoft: 'rgba(255,255,255,0.85)',
 
   // Lines / states
-  border: '#DCE5F2',
+  border: '#D6E6DA',
   error: '#DC2626',
   errorBg: '#FEF2F2',
-  success: '#16A34A',
+  success: '#15803D',
   white: '#FFFFFF',
-  backdrop: 'rgba(15,27,45,0.45)',
+  backdrop: 'rgba(14,31,21,0.45)',
 
   shadow: {
-    shadowColor: '#0B2E66',
+    shadowColor: '#0B3A22',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.1,
     shadowRadius: 14,
@@ -53,33 +53,33 @@ export const darkColors = {
   mode: 'dark',
   isDark: true,
 
-  // Brand / gradients (brighter for contrast on dark surfaces)
-  primary: '#60A5FA',
-  primaryDark: '#93C5FD',
-  gradientStart: '#1E3A8A',
-  gradientMid: '#1D4ED8',
-  gradientEnd: '#2563EB',
-  accent: '#38BDF8',
+  // Brand / gradients (brighter greens for contrast on dark surfaces)
+  primary: '#34D399',       // emerald-400
+  primaryDark: '#6EE7B7',
+  gradientStart: '#14532D', // green-900
+  gradientMid: '#166534',   // green-800
+  gradientEnd: '#15803D',   // green-700
+  accent: '#2DD4BF',        // teal-400
 
   // Translucent tints
-  primaryTint: 'rgba(96,165,250,0.18)',
-  accentTint: 'rgba(56,189,248,0.16)',
+  primaryTint: 'rgba(52,211,153,0.18)',
+  accentTint: 'rgba(45,212,191,0.16)',
   successTint: 'rgba(74,222,128,0.14)',
   errorTint: 'rgba(248,113,113,0.16)',
 
   // Surfaces
-  background: '#0A101D',
-  surface: '#141D2E',
-  surfaceAlt: '#1C2740',
+  background: '#08140D',
+  surface: '#10241A',
+  surfaceAlt: '#173024',
 
   // Text
-  text: '#E8EEF7',
-  textMuted: '#94A3B8',
+  text: '#E6F2EA',
+  textMuted: '#8FA899',
   textOnGradient: '#FFFFFF',
   textOnGradientSoft: 'rgba(255,255,255,0.85)',
 
   // Lines / states
-  border: '#26344D',
+  border: '#22432F',
   error: '#F87171',
   errorBg: 'rgba(248,113,113,0.12)',
   success: '#4ADE80',
