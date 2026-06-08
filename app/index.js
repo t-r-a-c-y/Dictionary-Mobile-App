@@ -13,6 +13,7 @@ import Loader from '../components/Loader';
 import SearchBar from '../components/SearchBar';
 import { useHistory } from '../context/HistoryContext';
 import { useTheme } from '../context/ThemeContext';
+import { validateWord } from '../utils/validation';
 
 export default function SearchScreen() {
   const { colors } = useTheme();
@@ -36,8 +37,10 @@ export default function SearchScreen() {
 
   const onSearch = async () => {
     Keyboard.dismiss();
-    if (!word.trim()) {
-      setValidationError('Please enter a word to search.');
+    // Run the full validation rule set (empty / sentence / numbers / symbols).
+    const validationMsg = validateWord(word);
+    if (validationMsg) {
+      setValidationError(validationMsg);
       return;
     }
     setValidationError('');

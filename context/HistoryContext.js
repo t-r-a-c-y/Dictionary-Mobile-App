@@ -13,6 +13,7 @@ import React, {
   useState,
 } from 'react';
 import { fetchWord } from '../services/dictionaryApi';
+import { validateWord } from '../utils/validation';
 
 const HistoryContext = createContext(null);
 
@@ -43,9 +44,11 @@ export function HistoryProvider({ children }) {
     async (rawWord) => {
       const word = (rawWord || '').trim();
 
-      // Input validation guard (the UI also validates, this is a safety net).
-      if (!word) {
-        setError('Please enter a word to search.');
+      // Input validation guard (the UI also validates; this is a safety net
+      // that covers programmatic/history-triggered searches too).
+      const validationMsg = validateWord(rawWord);
+      if (validationMsg) {
+        setError(validationMsg);
         return false;
       }
 

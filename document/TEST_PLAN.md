@@ -67,6 +67,9 @@ npx expo export --platform ios --output-dir dist-check
 | A1-1 | Search screen has text input + search button | Launch app | — | Search screen shows an input field and a **Search** button | ☐ |
 | A1-2 | Validate input not empty | Tap **Search** with empty field | `` (empty) | Inline message: *"Please enter a word to search."*; no API call | ☐ |
 | A1-3 | Reject whitespace-only | Type spaces, tap **Search** | `   ` | Same validation message; no API call | ☐ |
+| A1-3b | Reject a sentence / multiple words | Type two words, tap **Search** | `hello world` | "Please search for one word, not a sentence." | ☐ |
+| A1-3c | Reject numbers | Search a word with digits | `hello123`, `42` | "Please search for a word instead of numbers." | ☐ |
+| A1-3d | Reject symbols | Search a word with symbols | `@hello`, `test!` | "Please search for a word instead of numbers." | ☐ |
 | A1-4 | Capture entered word on submit | Type a word, press keyboard **search** / tap button | `hello` | Search is triggered with the typed word | ☐ |
 | A1-5 | Build API URL dynamically | (Verified via result) | `hello` | Request goes to `…/entries/en/hello` | ☐ |
 | A1-6 | Send HTTP GET (axios) | Submit a valid word | `hello` | Network request fires; results return | ☐ |
@@ -167,7 +170,7 @@ npx expo export --platform ios --output-dir dist-check
 | NF-12 | Clear input on re-search | Open a word → "Search another word" | Search field is **empty** (previous word cleared) | ☐ |
 | NF-13 | Clear-all confirm (drawer) | Drawer → "Clear all" | Styled confirm dialog appears; Cancel keeps, Confirm wipes | ☐ |
 | NF-14 | Clear-all confirm (dashboard) | Search screen → "Clear all" on Recent | Same styled confirm dialog appears before clearing | ☐ |
-| NF-15 | Delete single history item | Drawer → tap ✕ on a word | Only that word is removed (animated out) | ☐ |
+| NF-15 | Delete single history item | Drawer → tap ✕ on a word | Confirm dialog appears; Confirm removes only that word (animated out), Cancel keeps it | ☐ |
 
 ---
 

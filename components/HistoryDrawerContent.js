@@ -24,6 +24,7 @@ export default function HistoryDrawerContent(props) {
   const router = useRouter();
   const { history, search, removeFromHistory, clearHistory } = useHistory();
   const [confirmClear, setConfirmClear] = useState(false);
+  const [deleteWord, setDeleteWord] = useState(null); // word pending deletion
 
   const onSelectWord = async (word) => {
     props.navigation.closeDrawer();
@@ -133,7 +134,7 @@ export default function HistoryDrawerContent(props) {
                   {word}
                 </Text>
                 <Pressable
-                  onPress={() => removeFromHistory(word)}
+                  onPress={() => setDeleteWord(word)}
                   hitSlop={10}
                   style={styles.deleteBtn}
                   accessibilityRole="button"
@@ -152,7 +153,7 @@ export default function HistoryDrawerContent(props) {
         <Text style={styles.footerText}>Dictionary App · v1.0.0</Text>
       </View>
 
-      {/* Themed confirm dialog */}
+      {/* Confirm: clear ALL history */}
       <ConfirmModal
         visible={confirmClear}
         icon="trash-outline"
@@ -166,6 +167,26 @@ export default function HistoryDrawerContent(props) {
           setConfirmClear(false);
         }}
         onCancel={() => setConfirmClear(false)}
+      />
+
+      {/* Confirm: remove a SINGLE word */}
+      <ConfirmModal
+        visible={!!deleteWord}
+        icon="close-circle-outline"
+        title="Remove this word?"
+        message={
+          deleteWord
+            ? `"${deleteWord}" will be removed from your search history.`
+            : ''
+        }
+        confirmLabel="Remove"
+        cancelLabel="Cancel"
+        destructive
+        onConfirm={() => {
+          removeFromHistory(deleteWord);
+          setDeleteWord(null);
+        }}
+        onCancel={() => setDeleteWord(null)}
       />
     </View>
   );
