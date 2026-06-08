@@ -9,10 +9,12 @@ import React, {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from 'react';
 import { fetchWord } from '../services/dictionaryApi';
+import { loadJSON, saveJSON, STORAGE_KEYS } from '../utils/storage';
 import { validateWord } from '../utils/validation';
 
 const HistoryContext = createContext(null);
@@ -22,6 +24,27 @@ export function HistoryProvider({ children }) {
   const [currentEntry, setCurrentEntry] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  // Guards against persisting the initial empty list before stored history
+  // has been read back in.
+  const [hydrated, setHydrated] = useState(false);
+
+  // Load saved history once on app start.
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      const stored = await loadJSON(STORAGE_KEYS.history, []);
+      if (active && Array.isArray(stored)) setHistory(stored);
+      if (active) setHydrated(true);
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Persist history whenever it changes (after hydration).
+  useEffect(() => {
+    if (hydrated) saveJSON(STORAGE_KEYS.history, history);
+  }, [history, hydrated]);
 
   // Add a word to history, newest first, ignoring duplicates (case-insensitive).
   const addToHistory = useCallback((word) => {
