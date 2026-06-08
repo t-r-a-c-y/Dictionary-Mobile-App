@@ -14,9 +14,14 @@ drawer.
 |------|--------------|
 | **Search** | Validated text input + Search button, axios fetch, loading spinner, error handling |
 | **Word Details** | Word, phonetic spelling, meanings by part of speech, all definitions, example sentences, scrollable |
-| **Audio** | Speaker/"Listen" button shown **only** when audio exists; graceful playback error handling (`expo-audio`) |
+| **Audio** | Speaker controls shown **only** when audio exists; full **play / pause / stop** state management + graceful error handling (`expo-audio`) |
 | **Drawer + History** | Drawer navigation; successful searches stored without duplicates; tap a word to re-fetch it |
 | **Errors** | "Word not found" (404), network errors, loaders always hidden after errors, malformed-response-safe, retry support |
+| **UI/UX** | Gradient hero/header cards, soft-shadow cards, POS badges, numbered definitions, recent-search chips, empty/loading/error states |
+
+> 📄 **Full design docs live in [`document/`](document/):**
+> [ARCHITECTURE.md](document/ARCHITECTURE.md) · [DATA_FLOW.md](document/DATA_FLOW.md) · [REQUIREMENTS.md](document/REQUIREMENTS.md)
+> (architecture diagram, data-flow diagram, audio state machine, validation strategy).
 
 ---
 
