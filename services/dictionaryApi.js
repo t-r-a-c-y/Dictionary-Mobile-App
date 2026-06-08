@@ -5,7 +5,14 @@
 //   2. Normalize the (sometimes messy) response into a single, safe shape.
 //   3. Translate any failure into a friendly, user-facing ApiError.
 import axios from 'axios';
-import { API_BASE_URL, REQUEST_TIMEOUT } from '../constants/config';
+import {
+  API_BASE_URL,
+  MAX_RETRIES,
+  REQUEST_TIMEOUT,
+  RETRY_DELAY,
+} from '../constants/config';
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
  * A typed error carrying an HTTP-ish status so the UI can react (e.g. 404).
@@ -115,12 +122,59 @@ function normalize(rawEntries, fallbackWord) {
   return { word, phonetic, audioUrl: audios[0]?.url ?? null, audios, meanings };
 }
 
+/** Map any thrown error into a friendly, typed ApiError. */
+function mapError(err) {
+  // Our own (validation / normalization) errors pass straight through.
+  if (err instanceof ApiError) return err;
+
+  if (err && err.response) {
+    const status = err.response.status;
+    if (status === 404) {
+      return new ApiError(
+        'Word not found. Please check the spelling and try again.',
+        404
+      );
+    }
+    if (status === 429) {
+      return new ApiError(
+        'Too many searches right now. Please wait a few seconds and try again.',
+        429
+      );
+    }
+    return new ApiError(
+      'The dictionary service is having trouble. Please try again shortly.',
+      status
+    );
+  }
+
+  // Request was made but no response (offline, DNS, timeout, etc.).
+  if (err && err.request) {
+    return new ApiError(
+      'Network error. Please check your internet connection and try again.',
+      0
+    );
+  }
+
+  return new ApiError('An unexpected error occurred. Please try again.', -1);
+}
+
+/** Decide whether a failure is worth retrying (transient). */
+function isRetryable(err) {
+  if (err instanceof ApiError) return err.status === 502 || err.status === 429;
+  const status = err?.response?.status;
+  if (status === 429 || (status >= 500 && status < 600)) return true; // rate-limit / server
+  if (!err?.response && err?.request) return true; // network / timeout
+  return false;
+}
+
 /**
  * Fetch and normalize a single word.
- * Throws ApiError on validation, 404, network, or unexpected failures.
+ * Retries transient failures (Cloudflare rate-limit / 5xx / network) so a valid
+ * word doesn't appear "broken" just because the free API throttled the request.
+ * A genuine 404 is never retried.
  *
  * @param {string} rawWord
- * @returns {Promise<{word,phonetic,audioUrl,meanings}>}
+ * @returns {Promise<{word,phonetic,audioUrl,audios,meanings}>}
  */
 export async function fetchWord(rawWord) {
   const term = (rawWord || '').trim().toLowerCase();
@@ -129,39 +183,38 @@ export async function fetchWord(rawWord) {
     throw new ApiError('Please enter a word to search.', 0);
   }
 
-  try {
-    const { data } = await axios.get(
-      `${API_BASE_URL}/${encodeURIComponent(term)}`,
-      { timeout: REQUEST_TIMEOUT }
-    );
-    return normalize(data, term);
-  } catch (err) {
-    // Our own validation/normalization errors pass straight through.
-    if (err instanceof ApiError) throw err;
+  let lastError;
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      const { data } = await axios.get(
+        `${API_BASE_URL}/${encodeURIComponent(term)}`,
+        { timeout: REQUEST_TIMEOUT, headers: { Accept: 'application/json' } }
+      );
 
-    // Server responded with a non-2xx status.
-    if (err.response) {
-      if (err.response.status === 404) {
+      // A valid lookup ALWAYS returns a JSON array. Anything else (e.g. a
+      // Cloudflare rate-limit HTML page returned with a 200) is transient —
+      // treat it as retryable, NOT as "word not found".
+      if (!Array.isArray(data)) {
         throw new ApiError(
-          'Word not found. Please check the spelling and try again.',
-          404
+          'The dictionary service returned an unexpected response. Please try again.',
+          502
         );
       }
-      throw new ApiError(
-        'Something went wrong on the server. Please try again.',
-        err.response.status
-      );
-    }
 
-    // Request was made but no response (offline, DNS, timeout, etc.).
-    if (err.request) {
-      throw new ApiError(
-        'Network error. Please check your internet connection and try again.',
-        0
-      );
-    }
+      return normalize(data, term);
+    } catch (err) {
+      // A real 404 means the word genuinely doesn't exist — fail fast.
+      if (err?.response?.status === 404) throw mapError(err);
 
-    // Anything else (config error, unexpected throw).
-    throw new ApiError('An unexpected error occurred. Please try again.', -1);
+      lastError = err;
+      if (isRetryable(err) && attempt < MAX_RETRIES) {
+        await delay(RETRY_DELAY * (attempt + 1)); // simple linear backoff
+        continue;
+      }
+      throw mapError(err);
+    }
   }
+
+  // Should be unreachable, but keep the contract (always throws an ApiError).
+  throw mapError(lastError);
 }

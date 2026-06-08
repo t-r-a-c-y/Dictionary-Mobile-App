@@ -9,11 +9,16 @@
     "newArchEnabled": true,
     "platforms": [
       "ios",
-      "android"
+      "android",
+      "web"
     ],
     "splash": {
       "resizeMode": "contain",
       "backgroundColor": "#166534"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single"
     },
     "ios": {
       "supportsTablet": true
