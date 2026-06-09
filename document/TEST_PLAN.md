@@ -69,7 +69,7 @@ npx expo export --platform ios --output-dir dist-check
 | A1-3 | Reject whitespace-only | Type spaces, tap **Search** | `   ` | Same validation message; no API call | ☐ |
 | A1-3b | Reject a sentence / multiple words | Type two words, tap **Search** | `hello world` | "Please search for one word, not a sentence." | ☐ |
 | A1-3c | Reject numbers | Search a word with digits | `hello123`, `42` | "Please search for a word instead of numbers." | ☐ |
-| A1-3d | Reject symbols | Search a word with symbols | `@hello`, `test!` | "Please search for a word instead of numbers." | ☐ |
+| A1-3d | Reject symbols | Search a word with symbols | `system()`, `@hello`, `test!` | "Please use only English letters, hyphens, or apostrophes." | ☐ |
 | A1-3e | Reject single letter | Search one letter | `a` | "Please enter more than one letter." | ☐ |
 | A1-4 | Capture entered word on submit | Type a word, press keyboard **search** / tap button | `hello` | Search is triggered with the typed word | ☐ |
 | A1-5 | Build API URL dynamically | (Verified via result) | `hello` | Request goes to `…/entries/en/hello` | ☐ |

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dictionary App — Diagrams</title>
+  <style>
+    :root { --green:#166534; --ink:#0E1F15; --muted:#566B5D; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: "Segoe UI", Roboto, Arial, sans-serif; background:#0A101D; color:#E6F2EA; }
+    header { padding:28px 24px 8px; }
+    h1 { margin:0; font-size:24px; }
+    p.sub { margin:6px 0 0; color:#8FA899; }
+    .wrap { padding:16px 24px 48px; max-width:1240px; margin:0 auto; }
+    section { background:#fff; border-radius:16px; padding:18px; margin:22px 0; box-shadow:0 8px 30px rgba(0,0,0,.4); }
+    section h2 { margin:0 0 4px; color:var(--green); font-size:18px; }
+    section p { margin:0 0 12px; color:var(--muted); font-size:14px; }
+    img { width:100%; height:auto; display:block; }
+    .hint { color:#8FA899; font-size:13px; padding:0 24px 24px; max-width:1240px; margin:0 auto; }
+    @media print { body { background:#fff; } header h1, .hint { color:#000; } section { box-shadow:none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Dictionary Mobile App — Diagrams</h1>
+    <p class="sub">LexiTech Solutions Ltd · React Native · Expo SDK 54</p>
+  </header>
+
+  <div class="wrap">
+    <section>
+      <h2>1. System Architecture</h2>
+      <p>Layered design: Presentation → State (Context) → Service (axios) → External API, with side modules for validation, persistence and config.</p>
+      <img src="architecture.svg" alt="System architecture diagram" />
+    </section>
+
+    <section>
+      <h2>2. Data Flow</h2>
+      <p>End-to-end journey of a search — input, validation, fetch, retry/error branches, storage, navigation and render.</p>
+      <img src="dataflow.svg" alt="Data flow diagram" />
+    </section>
+  </div>
+
+  <p class="hint">Tip: open this file in any browser. To export an image, right-click a diagram → “Save image as…”, or use the browser’s Print → “Save as PDF” for a clean copy to drop into a report.</p>
+</body>
+</html>
